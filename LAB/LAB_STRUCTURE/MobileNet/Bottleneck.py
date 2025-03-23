@@ -21,3 +21,14 @@ class Bottleneck(nn.Module):
         self.bn2 = nn.BatchNorm2d(hidden_channels)
         self.conv3 = nn.Conv2d(hidden_channels, out_channels, kernel_size=1, bias=False)
         self.bn3 = nn.BatchNorm2d(out_channels)
+
+        self.stride = stride
+        self.use_residual = (in_channels == out_channels) and (stride == 1)
+
+    def forward(self, x):
+        out = F.relu6(self.bn1(self.conv1(x)))
+        out = F.relu6(self.bn2(self.conv2(out)))
+        out = self.bn3(self.conv3(out))
+        if self.use_residual:
+            out = out + x
+        return out
