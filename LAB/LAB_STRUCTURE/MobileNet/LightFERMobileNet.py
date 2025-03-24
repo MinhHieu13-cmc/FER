@@ -1,18 +1,13 @@
 import torch
 import torch.nn as nn
-from LAB.LAB_STRUCTURE.MobileNet.Bottleneck import Bottleneck
-import torch.optim as optim
-from torch.utils.data import DataLoader, Dataset
-from torchvision import transforms
 import torch.nn.functional as F
-from tqdm import tqdm
-from LAB.LAB_STRUCTURE.MobileNet.train import apply_quantization, apply_pruning , train,evaluate
-from LAB.LAB_STRUCTURE.MobileNet.Data_processing import FERDataset
-# Định nghĩa mô hình Light-FER MobileNet
+from LAB.LAB_STRUCTURE.MobileNet.Bottleneck import Bottleneck  # Nhập Bottleneck từ file riêng
+
+
 class LightFERMobileNet(nn.Module):
     def __init__(self, num_classes=7):
         super(LightFERMobileNet, self).__init__()
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=2, padding=1, bias=False)  # Grayscale input
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=2, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(32)
         self.bottlenecks = nn.Sequential(
             Bottleneck(32, 16, 1, 1),
