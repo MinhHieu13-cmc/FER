@@ -9,6 +9,48 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 import torch.nn.functional as F
 from tqdm import tqdm
+from LAB.LAB_STRUCTURE.MobileNet.LightFERMobileNet import LightFERMobileNet
+
+
+# Tối ưu hóa
+def apply_pruning(model, pruning_rate=0.3):
+    for name, param in model.named_parameters():
+        if 'weight' in name:
+            tensor = param.data.cpu()
+            mask = tensor.abs() > tensor.abs().quantile(pruning_rate)
+            param.data = tensor * mask.float().to(param.device)
+    return model
+
+
+def apply_quantization(model):
+    model.half()
+    return model
+
+
+# Dataset
+class FERDataset(Dataset):
+    def __init__(self, images, labels, transform=None):
+        self.images = images
+        self.labels = labels
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        image = self.images[idx]
+        label = self.labels[idx]
+        if self.transform:
+            image = self.transform(image)
+        return image, torch.tensor(label, dtype=torch.long)
+
+
+# Huấn luyện
+def train(model, train_loader, criterion, optimizer, device, epoch):
+    model.train()
+    running_loss = 0.0
+    correct = 0
+    total = 0
 
 # Khởi tạo và chạy
 if __name__ == "__main__":
